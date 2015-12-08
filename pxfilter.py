@@ -183,6 +183,8 @@ class XssHtml(HTMLParser):
         return attrs
 
     def _htmlspecialchars(self, html):
+        if not html:
+            return ''
         return html.replace("<", "&lt;")\
             .replace(">", "&gt;")\
             .replace('"', "&quot;")\
