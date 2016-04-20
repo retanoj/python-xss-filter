@@ -48,6 +48,7 @@ class XssHtml(HTMLParser):
 
     def __init__(self, allows = []):
         HTMLParser.__init__(self)
+        self.cdata_mode = False
         self.allow_tags = allows if allows else self.allow_tags
         self.result = []
         self.start = []
@@ -68,6 +69,8 @@ class XssHtml(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if tag not in self.allow_tags:
+            if tag in self.CDATA_CONTENT_ELEMENTS:
+                self.cdata_mode = True
             return
         end_diagonal = ' /' if tag in self.nonend_tags else ''
         if not end_diagonal:
@@ -94,7 +97,10 @@ class XssHtml(HTMLParser):
             self.start.pop()
 
     def handle_data(self, data):
-        self.result.append(self._htmlspecialchars(data))
+        if self.cdata_mode:
+            self.cdata_mode = False
+        else:
+            self.result.append(self._htmlspecialchars(data))
 
     def handle_entityref(self, name):
         if name.isalpha():
@@ -192,10 +198,26 @@ class XssHtml(HTMLParser):
 
 if "__main__" == __name__:
     parser = XssHtml()
-    parser.feed("""<p><img src=1 onerror=alert(/xss/)></p><div class="left">
-        <a href='javascript:prompt(1)'><br />hehe</a></div>
-        <p id="test" onmouseover="alert(1)">&gt;M<svg>
-        <a href="https://www.baidu.com" target="self">MM</a></p>
-        <embed src='javascript:alert(/hehe/)' allowscriptaccess=always />""")
+    # parser.feed("""<p><img src=1 onerror=alert(/xss/)></p><div class="left">
+    #     <a href='javascript:prompt(1)'><br />hehe</a></div>
+    #     <p id="test" onmouseover="alert(1)">&gt;M<svg>
+    #     <a href="https://www.baidu.com" target="self">MM</a></p>
+    #     <embed src='javascript:alert(/hehe/)' allowscriptaccess=always />""")
+    parser.feed("""
+                <html>
+                <head>
+                    <script src='http://self.com/a.js' ></script>
+                    <script>
+                        while(1){prompt(1);}
+                    </script>
+                </head>
+                <body>
+                    <style>aabcc</style>
+                    <div>
+                        this is the content.
+                        <script>alert(1);</script>
+                    </div>
+                </body>
+                </html>""")
     parser.close()
     print(parser.getHtml())
