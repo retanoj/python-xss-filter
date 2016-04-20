@@ -2,8 +2,8 @@
 Based on native Python module HTMLParser purifier of HTML, To Clear all javascript in html  
 
 ## Python 富文本XSS过滤类
-@ phith0n的python-xss-filter修改版
-@ 原作者link: https://github.com/phith0n/python-xss-filter  
+@phith0n的python-xss-filter修改版
+@原作者link: https://github.com/phith0n/python-xss-filter  
 
 ## Usage:
     
