@@ -1,4 +1,3 @@
-$def with (tplData)
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -8,16 +7,22 @@ $def with (tplData)
 <script type="text/javascript" src="/static/jquery-1.4.4.min.js"></script>
 </head>
 <body>
+<div style="padding:0px 10px;"><h3 style="color:red;">输出区域(不支持IE6)</h3></div>
 <div style="margin: 10px 10px; padding:5px 10px; border: 1px solid #999; width: 75%; min-height: 100px;">
-<h3 style="color:red;">输出区域(不支持IE6)</h3>
-$:tplData['html']
+{% if html.cleanHtml %}
+	{{ html.cleanHtml }}
+{% endif %}
 </div>
 <form method="post">
 	<h3>python-xss-filter 富文本XSS过滤组件测试</h3>
 	<br />
-	<textarea name="xsscode" rows="12" cols="80" style="width: 80%">&lt;p&gt;&lt;img src=1 onerror=alert(/xss/)&gt;&lt;/p&gt;&lt;div class=&quot;left&quot;&gt;&lt;a href=&#039;javascript:prompt(
-    1)&#039;&gt;&lt;br /&gt;hehe&lt;/a&gt;&lt;/div&gt;&lt;p id=&quot;test&quot; onmouseover=&quot;alert(1)&quot;&gt;&amp;gt;M&lt;svg&gt;&lt;a href=&quot;https://www.baidu.com&quot; target=&quot;self&quot;
-    &gt;MM&lt;/a&gt;&lt;/p&gt;</textarea>
+	<textarea name="content" rows="12" cols="80" style="width: 80%">
+        {% if html.originHtml %}
+            {{ html.originHtml.strip() }}
+        {% else %}
+        &lt;p&gt;&lt;img src=1 onerror=alert(/xss/)&gt;&lt;/p&gt;&lt;div class=&quot;left&quot;&gt;&lt;a href=&#039;javascript:prompt(1)&#039;&gt;&lt;br /&gt;hehe&lt;/a&gt;&lt;/div&gt;&lt;p id=&quot;test&quot; onmouseover=&quot;alert(1)&quot;&gt;&amp;gt;M&lt;svg&gt;&lt;a href=&quot;https://www.baidu.com&quot; target=&quot;self&quot;&gt;MM&lt;/a&gt;&lt;/p&gt;
+        {% endif %}
+    </textarea>
 	<br/><br />
 	<input type="submit" name="save" value="Submit" />
 </form>
